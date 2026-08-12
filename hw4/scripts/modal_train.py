@@ -182,8 +182,9 @@ image = image.add_local_dir(
 app = modal.App(APP_NAME)
 
 function_secrets = []
-if os.environ.get("WANDB_API_KEY"):
-    function_secrets.append(modal.Secret.from_dict({"WANDB_API_KEY": os.environ["WANDB_API_KEY"]}))
+_wandb_api_key = os.environ.get("WANDB_API_KEY_PERSONAL") or os.environ.get("WANDB_API_KEY")
+if _wandb_api_key:
+    function_secrets.append(modal.Secret.from_dict({"WANDB_API_KEY": _wandb_api_key}))
 
 env = {
     "PYTHONPATH": PROJECT_DIR,
@@ -244,10 +245,10 @@ def bundle_submission_remote(*args: str) -> None:
 @app.local_entrypoint()
 def main(*args: str) -> None:
     """Default entrypoint: forward args to train_remote."""
-    if _is_wandb_enabled_for_train_args(args) and not NETRC_PATH.is_file() and not os.environ.get("WANDB_API_KEY"):
+    if _is_wandb_enabled_for_train_args(args) and not NETRC_PATH.is_file() and not (os.environ.get("WANDB_API_KEY_PERSONAL") or os.environ.get("WANDB_API_KEY")):
         raise RuntimeError(
             "W&B logging is enabled (default), but no credentials were detected locally. "
-            "Run `uvx wandb login` (creates ~/.netrc), or export WANDB_API_KEY before modal run, "
+            "Run `uvx wandb login` (creates ~/.netrc), or export WANDB_API_KEY_PERSONAL before modal run, "
             "or pass `--no-wandb_enabled`."
         )
     train_remote.remote(*args)

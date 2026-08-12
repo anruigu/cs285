@@ -187,7 +187,7 @@ def main():
     parser.add_argument("--log_interval", type=int, default=1000)
 
     # WandB arguments
-    parser.add_argument("--wandb_entity", type=str, default=None)
+    parser.add_argument("--wandb_entity", type=str, default="anrui0706-university-of-california-berkeley")
     parser.add_argument("--wandb_project", type=str, default="hw3")
 
     args = parser.parse_args()

@@ -198,8 +198,9 @@ app = modal.App(APP_NAME)
 
 function_secrets = []
 secret_env = {}
-if os.environ.get("WANDB_API_KEY"):
-    secret_env["WANDB_API_KEY"] = os.environ["WANDB_API_KEY"]
+_wandb_api_key = os.environ.get("WANDB_API_KEY_PERSONAL") or os.environ.get("WANDB_API_KEY")
+if _wandb_api_key:
+    secret_env["WANDB_API_KEY"] = _wandb_api_key
 if os.environ.get("OPENAI_API_KEY"):
     secret_env["OPENAI_API_KEY"] = os.environ["OPENAI_API_KEY"]
 if secret_env:
@@ -475,10 +476,10 @@ def build_reward_model_submission_remote(*args: str) -> None:
 
 @app.local_entrypoint()
 def main(*args: str) -> None:
-    if _is_wandb_enabled(args) and not NETRC_PATH.is_file() and not os.environ.get("WANDB_API_KEY"):
+    if _is_wandb_enabled(args) and not NETRC_PATH.is_file() and not (os.environ.get("WANDB_API_KEY_PERSONAL") or os.environ.get("WANDB_API_KEY")):
         raise RuntimeError(
             "W&B logging is enabled (default), but no credentials were detected locally. "
-            "Run `uvx wandb login` (creates ~/.netrc), or export WANDB_API_KEY before modal run, "
+            "Run `uvx wandb login` (creates ~/.netrc), or export WANDB_API_KEY_PERSONAL before modal run, "
             "or pass `--no-wandb_enabled`."
         )
     train_remote.remote(*args)

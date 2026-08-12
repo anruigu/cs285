@@ -136,6 +136,8 @@ def setup_wandb(
     config=None,
 ):
     """Set up Weights & Biases for logging."""
+    if not os.environ.get("WANDB_API_KEY") and os.environ.get("WANDB_API_KEY_PERSONAL"):
+        os.environ["WANDB_API_KEY"] = os.environ["WANDB_API_KEY_PERSONAL"]
     wandb_output_dir = tempfile.mkdtemp()
     tags = [group] if group is not None else None
 

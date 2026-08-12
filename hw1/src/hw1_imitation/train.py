@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+import os
 
 import numpy as np
 import torch
@@ -122,6 +123,8 @@ def run_training(config: TrainConfig) -> None:
     if config.exp_name is not None:
         exp_name += f"_{config.exp_name}"
     log_dir = Path(LOGDIR_PREFIX) / exp_name
+    if not os.environ.get("WANDB_API_KEY") and os.environ.get("WANDB_API_KEY_PERSONAL"):
+        os.environ["WANDB_API_KEY"] = os.environ["WANDB_API_KEY_PERSONAL"]
     wandb.init(
         project=config.wandb_project, config=config_to_dict(config), name=exp_name
     )

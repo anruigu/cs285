@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -34,6 +35,8 @@ class WandBLogger:
                 self.enabled = False
                 return
             self._wandb = wandb
+            if not os.environ.get("WANDB_API_KEY") and os.environ.get("WANDB_API_KEY_PERSONAL"):
+                os.environ["WANDB_API_KEY"] = os.environ["WANDB_API_KEY_PERSONAL"]
             self._run = wandb.init(project=project, name=run_name, config=config)
 
     def log(self, metrics: Dict[str, Any], step: Optional[int] = None) -> None:

@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -59,12 +60,17 @@ image = image.add_local_dir(
 
 app = modal.App(APP_NAME)
 
+function_secrets: list[modal.Secret] = []
+_wandb_api_key = os.environ.get("WANDB_API_KEY_PERSONAL") or os.environ.get("WANDB_API_KEY")
+if _wandb_api_key:
+    function_secrets.append(modal.Secret.from_dict({"WANDB_API_KEY": _wandb_api_key}))
+
 env = {
     "PYTHONPATH": f"{PROJECT_DIR}/src",
 }
 
 
-@app.function(volumes={VOLUME_PATH: volume}, timeout=60 * 60 * 5, env=env, image=image, gpu=DEFAULT_GPU, cpu=DEFAULT_CPU, memory=DEFAULT_MEMORY)
+@app.function(volumes={VOLUME_PATH: volume}, timeout=60 * 60 * 5, env=env, image=image, secrets=function_secrets, gpu=DEFAULT_GPU, cpu=DEFAULT_CPU, memory=DEFAULT_MEMORY)
 def hw3_sac_remote(*args: str) -> None:
     import os
 

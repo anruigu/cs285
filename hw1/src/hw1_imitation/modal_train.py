@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import modal
@@ -54,6 +55,11 @@ image = image.add_local_dir(
 
 app = modal.App(APP_NAME)
 
+function_secrets: list[modal.Secret] = []
+_wandb_api_key = os.environ.get("WANDB_API_KEY_PERSONAL") or os.environ.get("WANDB_API_KEY")
+if _wandb_api_key:
+    function_secrets.append(modal.Secret.from_dict({"WANDB_API_KEY": _wandb_api_key}))
+
 env = {
     "PYTHONPATH": f"{PROJECT_DIR}/src",
     "WANDB_DIR": f"{VOLUME_PATH}/wandb",
@@ -65,6 +71,7 @@ env = {
     timeout=60 * 60 * 4,
     env=env,
     image=image,
+    secrets=function_secrets,
     gpu=DEFAULT_GPU,
     cpu=DEFAULT_CPU,
 )
